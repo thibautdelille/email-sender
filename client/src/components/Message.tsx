@@ -39,12 +39,15 @@ export const Message = ({
               // You can store the "editor" and use when it is needed.
               console.log('Editor is ready to use!', editor);
             }}
+            // @ts-ignore
             onChange={(event, editor) => {
               setMessage(editor.data.get());
             }}
+            // @ts-ignore
             onBlur={(event, editor) => {
               console.log('Blur.', editor);
             }}
+            // @ts-ignore
             onFocus={(event, editor) => {
               console.log('Focus.', editor);
             }}
