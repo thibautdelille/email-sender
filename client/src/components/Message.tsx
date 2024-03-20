@@ -25,6 +25,7 @@ export const Message = ({
         <Flex gap={4} direction="column">
           <Input
             type="text"
+            size="sm"
             placeholder="Subject"
             value={subject}
             onChange={(e) => {

@@ -40,13 +40,13 @@ export const Sender = ({
             <Tbody>
               <Tr>
                 <Td>
-                  <Text fontSize="xs" fontWeight="bold">
+                  <Text fontSize="sm" fontWeight="bold">
                     Email Address
                   </Text>
                 </Td>
                 <Td>
                   <Input
-                    size="xs"
+                    size="sm"
                     type="email"
                     placeholder="from"
                     value={from}
@@ -58,13 +58,13 @@ export const Sender = ({
               </Tr>
               <Tr>
                 <Td>
-                  <Text fontSize="xs" fontWeight="bold">
+                  <Text fontSize="sm" fontWeight="bold">
                     Display Name
                   </Text>
                 </Td>
                 <Td>
                   <Input
-                    size="xs"
+                    size="sm"
                     type="text"
                     placeholder="enter name"
                     value={name}
@@ -76,13 +76,13 @@ export const Sender = ({
               </Tr>
               <Tr>
                 <Td>
-                  <Text fontSize="xs" fontWeight="bold">
+                  <Text fontSize="sm" fontWeight="bold">
                     App passord
                   </Text>
                 </Td>
                 <Td>
                   <Input
-                    size="xs"
+                    size="sm"
                     type="password"
                     placeholder="enter app password"
                     value={appPassword}

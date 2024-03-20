@@ -1,4 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
+import axios, { AxiosResponse } from 'axios';
 
 type EmailParams = {
   from: string;
@@ -9,13 +10,11 @@ type EmailParams = {
   password: string;
 };
 
-const getEmail = (params: EmailParams): Promise<Response> => {
+const getEmail = (params: EmailParams): Promise<AxiosResponse<any, any>> => {
   const URLparams = new URLSearchParams(params);
-  return fetch(
-    `http://127.0.0.1:5001/email-sender-backend/us-central1/sendMail?${URLparams.toString()}`,
-    {
-      method: 'GET',
-    }
+  console.log('import.meta.env:', import.meta.env);
+  return axios.get(
+    `${import.meta.env.VITE_DOMAIN_NAME}sendMail?${URLparams.toString()}`
   );
 };
 export const useSendEmail = () =>
