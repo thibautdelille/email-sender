@@ -12,7 +12,6 @@ type EmailParams = {
 
 const getEmail = (params: EmailParams): Promise<AxiosResponse<any, any>> => {
   const URLparams = new URLSearchParams(params);
-  console.log('import.meta.env:', import.meta.env);
   return axios.get(
     `${import.meta.env.VITE_DOMAIN_NAME}sendMail?${URLparams.toString()}`
   );

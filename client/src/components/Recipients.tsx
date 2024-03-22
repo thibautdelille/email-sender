@@ -7,7 +7,6 @@ import {
   Button,
   Card,
   CardBody,
-  CardHeader,
   Flex,
   Table,
   TableContainer,
@@ -19,7 +18,7 @@ import {
 } from '@chakra-ui/react';
 import { RecipientType } from '../types';
 import { Recipient } from './Recipient';
-import { Header } from './Header';
+import { CardHeader } from './CardHeader';
 
 // Allowed extensions for input file
 const allowedExtensions = ['csv'];
@@ -111,9 +110,7 @@ export const Recipients = ({
   return (
     <>
       <Card>
-        <CardHeader>
-          <Header>Recipients</Header>
-        </CardHeader>
+        <CardHeader>Recipients</CardHeader>
         <CardBody>
           {error && <Text color="red.500">{error}</Text>}
           {data.length ? (

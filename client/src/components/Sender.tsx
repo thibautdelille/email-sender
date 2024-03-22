@@ -1,7 +1,6 @@
 import {
   Card,
   CardBody,
-  CardHeader,
   Input,
   Table,
   TableContainer,
@@ -10,7 +9,7 @@ import {
   Text,
   Tr,
 } from '@chakra-ui/react';
-import { Header } from './Header';
+import { CardHeader } from './CardHeader';
 
 type SenderProps = {
   from: string;
@@ -31,9 +30,7 @@ export const Sender = ({
 }: SenderProps) => {
   return (
     <Card flex={1}>
-      <CardHeader>
-        <Header>Sender</Header>
-      </CardHeader>
+      <CardHeader>Sender</CardHeader>
       <CardBody>
         <TableContainer>
           <Table variant="simple">

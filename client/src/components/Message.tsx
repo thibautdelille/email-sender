@@ -1,7 +1,7 @@
-import { Card, CardBody, CardHeader, Flex, Input } from '@chakra-ui/react';
+import { Card, CardBody, Flex, Input } from '@chakra-ui/react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
-import { Header } from './Header';
+import { CardHeader } from './CardHeader';
 
 type MessageProps = {
   subject: string;
@@ -18,9 +18,7 @@ export const Message = ({
 }: MessageProps) => {
   return (
     <Card flex={1}>
-      <CardHeader>
-        <Header>Message</Header>
-      </CardHeader>
+      <CardHeader>Message</CardHeader>
       <CardBody>
         <Flex gap={4} direction="column">
           <Input
