@@ -1,27 +1,35 @@
 import { useMutation } from '@tanstack/react-query';
-import { db } from '../config/firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { collection, doc, setDoc } from 'firebase/firestore';
 import { useUser } from '../provider/userProvider';
+import { db } from '../config/firebase';
+import { UserData } from '../types';
 
 const updateUserData = ({
-  appPassword,
+  userId,
   name,
+  appPassword,
+  message,
+  subject,
+  recipients,
 }: {
-  appPassword: string;
-  name: string;
-}) => {
+  userId: string;
+} & UserData) => {
+  const usersRef = collection(db, 'userData');
+  return setDoc(doc(usersRef, userId), {
+    appPassword,
+    name,
+    message,
+    subject,
+    recipients,
+  });
+};
+
+export const useUpdateUserData = () => {
   const { user } = useUser();
   if (!user) {
     throw new Error('User not found');
   }
-  const userRef = doc(db, 'userData', user.uid);
-  return setDoc(userRef, {
-    appPassword,
-    name,
-  });
-};
-
-export const useUpdateUserData = () =>
-  useMutation({
+  return useMutation({
     mutationFn: updateUserData,
   });
+};

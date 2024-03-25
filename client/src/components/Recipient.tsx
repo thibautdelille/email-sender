@@ -1,7 +1,7 @@
 import { Button, Flex, Icon, Td, Text, Tr, useToast } from '@chakra-ui/react';
 import { RecipientType } from '../types';
 import { useSendEmail } from '../api/sendEmail';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CheckCircleIcon, WarningIcon } from '@chakra-ui/icons';
 import { AxiosError } from 'axios';
 
@@ -12,6 +12,7 @@ type RecipientProps = {
   appPassword: string;
   subject: string;
   message: string;
+  onUpdate: (recipient: RecipientType) => void;
 };
 
 function replaceAllName(message: string, name: string) {
@@ -25,17 +26,23 @@ export const Recipient = ({
   from,
   name,
   appPassword,
+  onUpdate,
 }: RecipientProps) => {
-  const [isSent, setIsSent] = useState(false);
+  const [isSent, setIsSent] = useState(recipient.sent);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const sendEmail = useSendEmail();
   const toast = useToast();
 
+  useEffect(() => {
+    setIsSent(recipient.sent);
+  }, [recipient.sent]);
+
   const showSuccess = () => {
     setIsSuccess(true);
     setIsSent(true);
+    onUpdate({ ...recipient, sent: true });
     setTimeout(() => {
       setIsSuccess(false);
     }, 3000);
@@ -44,6 +51,7 @@ export const Recipient = ({
   const showError = () => {
     setIsError(true);
     setIsSent(false);
+    onUpdate({ ...recipient, sent: false });
     setTimeout(() => {
       setIsError(false);
     }, 3000);

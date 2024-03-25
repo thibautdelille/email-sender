@@ -2,20 +2,18 @@ import { Card, CardBody, Flex, Input } from '@chakra-ui/react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import { CardHeader } from './CardHeader';
+import { MessageData } from '../types';
+import { useState } from 'react';
 
 type MessageProps = {
-  subject: string;
-  message: string;
-  setSubject: (subject: string) => void;
-  setMessage: (message: string) => void;
+  onSave: ({ subject, message }: MessageData) => void;
 };
 
-export const Message = ({
-  message,
-  subject,
-  setSubject,
-  setMessage,
-}: MessageProps) => {
+export const Message = ({ onSave }: MessageProps) => {
+  const [subject, setSubject] = useState('');
+  const [message, setMessage] = useState(
+    '<p>Hello {name},<br/>Enter your message<br/>Your name</p>'
+  );
   return (
     <Card flex={1}>
       <CardHeader>Message</CardHeader>
@@ -29,25 +27,20 @@ export const Message = ({
             onChange={(e) => {
               setSubject(e.target.value);
             }}
+            onBlur={() => {
+              onSave({ subject, message });
+            }}
           />
           <CKEditor
             editor={ClassicEditor}
             data={message}
-            onReady={(editor) => {
-              // You can store the "editor" and use when it is needed.
-              console.log('Editor is ready to use!', editor);
-            }}
             // @ts-ignore
             onChange={(event, editor) => {
               setMessage(editor.data.get());
             }}
             // @ts-ignore
             onBlur={(event, editor) => {
-              console.log('Blur.', editor);
-            }}
-            // @ts-ignore
-            onFocus={(event, editor) => {
-              console.log('Focus.', editor);
+              onSave({ subject, message });
             }}
           />
         </Flex>

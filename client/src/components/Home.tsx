@@ -5,16 +5,72 @@ import { Recipients } from './Recipients';
 import { useState } from 'react';
 import { NavBar } from './NavBar';
 import { useUser } from '../provider/userProvider';
+import { useGetUserData } from '../api/getUserData';
+import { useUpdateUserData } from '../api/updateUserData';
+import { MessageData, RecipientType, SenderData } from '../types';
 
 export const Home = () => {
   const { user } = useUser();
+  const getUserData = useGetUserData(user?.uid);
+  const updateUserData = useUpdateUserData();
   const [from, setFrom] = useState(user?.email || '');
-  const [appPassword, setAppPassword] = useState('');
-  const [name, setName] = useState('');
-  const [subject, setSubject] = useState('');
-  const [message, setMessage] = useState(
-    '<p>Hello {name},<br/>Enter your message<br/>Your name</p>'
-  );
+
+  if (getUserData.isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (getUserData.isError) {
+    return <div>Error: {getUserData.error.message}</div>;
+  }
+
+  if (!getUserData.data) {
+    return <div>No data found</div>;
+  }
+
+  const { appPassword, name, message, subject, recipients } = getUserData.data;
+
+  const handleSave = ({ name, appPassword }: SenderData) => {
+    if (!user) {
+      return;
+    }
+    updateUserData.mutate({
+      userId: user.uid,
+      appPassword,
+      name,
+      message,
+      subject,
+      recipients,
+    });
+  };
+
+  const handleSaveMessage = ({ subject, message }: MessageData) => {
+    if (!user) {
+      return;
+    }
+    updateUserData.mutate({
+      userId: user.uid,
+      appPassword,
+      name,
+      message,
+      subject,
+      recipients,
+    });
+  };
+
+  const handleSaveRecipients = (recipients: RecipientType[]) => {
+    if (!user) {
+      return;
+    }
+    updateUserData.mutate({
+      userId: user.uid,
+      appPassword,
+      name,
+      message,
+      subject,
+      recipients,
+    });
+  };
+
   return (
     <Flex gap={4} direction="column" width="100%">
       <NavBar />
@@ -24,23 +80,19 @@ export const Home = () => {
             from={from}
             setFrom={setFrom}
             appPassword={appPassword}
-            setAppPassword={setAppPassword}
             name={name}
-            setName={setName}
+            onSave={handleSave}
           />
-          <Message
-            message={message}
-            setMessage={setMessage}
-            subject={subject}
-            setSubject={setSubject}
-          />
+          <Message onSave={handleSaveMessage} />
         </Flex>
         <Recipients
+          recipients={recipients || []}
           from={from}
           name={name}
           appPassword={appPassword}
           subject={subject}
           message={message}
+          onSave={handleSaveRecipients}
         />
       </Flex>
     </Flex>

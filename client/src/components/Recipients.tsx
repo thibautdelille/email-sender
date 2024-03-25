@@ -24,23 +24,27 @@ import { CardHeader } from './CardHeader';
 const allowedExtensions = ['csv'];
 
 type RecipientsProps = {
+  recipients: RecipientType[] | undefined;
   from: string;
   name: string;
   message: string;
   subject: string;
   appPassword: string;
+  onSave: (recipients: RecipientType[]) => void;
 };
 
 export const Recipients = ({
+  recipients,
   from,
   name,
   appPassword,
   subject,
   message,
+  onSave,
 }: RecipientsProps) => {
   const inputRef = React.useRef<HTMLInputElement>(null);
   // This state will store the parsed data
-  const [data, setData] = useState<Array<RecipientType>>([]);
+  const [data, setData] = useState<Array<RecipientType>>(recipients || []);
 
   // It state will contain the error when
   // correct file extension is not used
@@ -96,6 +100,7 @@ export const Recipients = ({
         return alert('Invalid CSV file');
       }
       setData(parsedData as Array<RecipientType>);
+      onSave(parsedData as Array<RecipientType>);
     };
     reader.readAsText(file);
   };
@@ -107,13 +112,26 @@ export const Recipients = ({
     }
   };
 
+  const onUpdateRecipient = (index: number, recipient: RecipientType) => {
+    const updatedData = [...data];
+    updatedData[index] = recipient;
+    setData(updatedData);
+    onSave(updatedData);
+  };
   return (
     <>
       <Card>
         <CardHeader>Recipients</CardHeader>
         <CardBody>
           {error && <Text color="red.500">{error}</Text>}
-          {data.length ? (
+
+          <Flex direction="column" align="flex-start" gap={4}>
+            <Text>
+              Select a csv file with containing the header name and email
+            </Text>
+            <Button onClick={handleSelectFile}>Select File</Button>
+          </Flex>
+          {data.length && (
             <TableContainer>
               <Table>
                 <Thead>
@@ -134,18 +152,14 @@ export const Recipients = ({
                       appPassword={appPassword}
                       subject={subject}
                       message={message}
+                      onUpdate={(recipient: RecipientType) =>
+                        onUpdateRecipient(index, recipient)
+                      }
                     />
                   ))}
                 </Tbody>
               </Table>
             </TableContainer>
-          ) : (
-            <Flex direction="column" align="flex-start" gap={4}>
-              <Text>
-                Select a csv file with containing the header name and email
-              </Text>
-              <Button onClick={handleSelectFile}>Select File</Button>
-            </Flex>
           )}
         </CardBody>
       </Card>
