@@ -2,6 +2,7 @@ export type RecipientType = {
   name: string;
   email: string;
   sent: boolean;
+  status?: 'success' | 'error' | 'idle';
 };
 
 export type SenderData = {

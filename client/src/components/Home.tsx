@@ -8,6 +8,7 @@ import { useUser } from '../provider/userProvider';
 import { useGetUserData } from '../api/getUserData';
 import { useUpdateUserData } from '../api/updateUserData';
 import { MessageData, RecipientType, SenderData } from '../types';
+import { Automate } from './Automate';
 
 export const Home = () => {
   const { user } = useUser();
@@ -74,8 +75,8 @@ export const Home = () => {
   return (
     <Flex gap={4} direction="column" width="100%">
       <NavBar />
-      <Flex px={4} gap={4} direction="column" width="100%">
-        <Flex gap={4}>
+      <Flex px={4} gap={4} width="100%">
+        <Flex gap={4} direction="column">
           <Sender
             from={from}
             setFrom={setFrom}

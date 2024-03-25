@@ -6,7 +6,7 @@ type CardHeaderProps = {
 
 export const CardHeader = ({ children }: CardHeaderProps) => {
   return (
-    <ChakraCardHeader py={2}>
+    <ChakraCardHeader borderBottom="1px solid" borderColor="gray.100">
       <Text
         textTransform="uppercase"
         color="gray.400"

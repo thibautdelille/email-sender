@@ -1,12 +1,13 @@
 // Filename - App.js
 
-import React, { useState, ChangeEvent } from 'react';
+import React, { useState, ChangeEvent, useEffect } from 'react';
 import Papa from 'papaparse';
 import {
   Box,
   Button,
   Card,
   CardBody,
+  Divider,
   Flex,
   Table,
   TableContainer,
@@ -15,10 +16,14 @@ import {
   Th,
   Thead,
   Tr,
+  useToast,
 } from '@chakra-ui/react';
 import { RecipientType } from '../types';
 import { Recipient } from './Recipient';
 import { CardHeader } from './CardHeader';
+import { useSendEmail } from '../api/sendEmail';
+import { AxiosError } from 'axios';
+import { Automate } from './Automate';
 
 // Allowed extensions for input file
 const allowedExtensions = ['csv'];
@@ -33,6 +38,10 @@ type RecipientsProps = {
   onSave: (recipients: RecipientType[]) => void;
 };
 
+function replaceAllName(message: string, name: string) {
+  return message.replace(/{name}/g, name);
+}
+
 export const Recipients = ({
   recipients,
   from,
@@ -45,6 +54,16 @@ export const Recipients = ({
   const inputRef = React.useRef<HTMLInputElement>(null);
   // This state will store the parsed data
   const [data, setData] = useState<Array<RecipientType>>(recipients || []);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  // useEffect(() => {
+  //   if (recipients) {
+  //     setData(recipients);
+  //   }
+  // }, [recipients]);
+
+  const sendEmail = useSendEmail();
+  const toast = useToast();
 
   // It state will contain the error when
   // correct file extension is not used
@@ -118,19 +137,107 @@ export const Recipients = ({
     setData(updatedData);
     onSave(updatedData);
   };
+
+  const showSuccess = (index: number) => {
+    // set the recipient status to success
+    const recipient = data[index];
+    onUpdateRecipient(index, { ...recipient, sent: true });
+
+    setData((prev) => {
+      return prev.map((item, i) => {
+        if (i === index) {
+          return { ...item, status: 'success', sent: true };
+        }
+        return item;
+      });
+    });
+    setTimeout(() => {
+      setData((prev) => {
+        return prev.map((item, i) => {
+          if (i === index) {
+            return { ...item, status: 'idle' };
+          }
+          return item;
+        });
+      });
+    }, 3000);
+  };
+
+  const showError = (index: number) => {
+    // set the recipient status to success
+    const recipient = data[index];
+    onUpdateRecipient(index, { ...recipient, sent: false });
+    setData((prev) => {
+      return prev.map((item, i) => {
+        if (i === index) {
+          return { ...item, status: 'error', sent: false };
+        }
+        return item;
+      });
+    });
+    setTimeout(() => {
+      setData((prev) => {
+        return prev.map((item, i) => {
+          if (i === index) {
+            return { ...item, status: 'idle' };
+          }
+          return item;
+        });
+      });
+    }, 3000);
+  };
+  const sendMessageHandler = (index: number, recipient: RecipientType) => {
+    const savePromise = new Promise((resolve, reject) => {
+      sendEmail.mutate(
+        {
+          from,
+          to: recipient.email,
+          name,
+          subject,
+          message: encodeURIComponent(replaceAllName(message, recipient.name)),
+          password: appPassword,
+        },
+        {
+          onSuccess: (response) => {
+            console.log('onSuccess', response);
+            showSuccess(index);
+            resolve(response);
+          },
+          onError: (e) => {
+            console.log('onError', e);
+            const data = (e as AxiosError).response?.data as string;
+            setErrorMessage(data || e.message);
+            reject(e);
+            showError(index);
+          },
+        }
+      );
+    });
+
+    toast.promise(savePromise, {
+      success: { title: 'Email sent', description: 'Looks great' },
+      error: { title: 'Something went wrong', description: errorMessage },
+      loading: { title: 'Sending Email', description: 'Please wait' },
+    });
+  };
   return (
-    <>
+    <Flex gap={4} direction="column">
+      <Automate recipients={data} onSendMessage={sendMessageHandler} />
       <Card>
         <CardHeader>Recipients</CardHeader>
-        <CardBody>
-          {error && <Text color="red.500">{error}</Text>}
-
-          <Flex direction="column" align="flex-start" gap={4}>
-            <Text>
-              Select a csv file with containing the header name and email
-            </Text>
-            <Button onClick={handleSelectFile}>Select File</Button>
-          </Flex>
+        {error && <Text color="red.500">{error}</Text>}
+        <Flex direction="column" gap={0}>
+          <CardBody>
+            <Flex align="center" gap={4} justify="space-between">
+              <Text>
+                Select a csv file with containing the header name and email
+              </Text>
+              <Button size="sm" onClick={handleSelectFile}>
+                Select File
+              </Button>
+            </Flex>
+          </CardBody>
+          <Divider />
           {data.length && (
             <TableContainer>
               <Table>
@@ -147,13 +254,8 @@ export const Recipients = ({
                     <Recipient
                       key={index}
                       recipient={item}
-                      from={from}
-                      name={name}
-                      appPassword={appPassword}
-                      subject={subject}
-                      message={message}
-                      onUpdate={(recipient: RecipientType) =>
-                        onUpdateRecipient(index, recipient)
+                      onSendMessage={(recipient: RecipientType) =>
+                        sendMessageHandler(index, recipient)
                       }
                     />
                   ))}
@@ -161,7 +263,7 @@ export const Recipients = ({
               </Table>
             </TableContainer>
           )}
-        </CardBody>
+        </Flex>
       </Card>
       <Box display="none">
         <input
@@ -172,6 +274,6 @@ export const Recipients = ({
           type="File"
         />
       </Box>
-    </>
+    </Flex>
   );
 };
