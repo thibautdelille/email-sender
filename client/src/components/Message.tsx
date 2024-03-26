@@ -15,7 +15,7 @@ export const Message = ({ onSave }: MessageProps) => {
     '<p>Hello {name},<br/>Enter your message<br/>Your name</p>'
   );
   return (
-    <Card flex={1}>
+    <Card>
       <CardHeader>Message</CardHeader>
       <CardBody>
         <Flex gap={4} direction="column">
@@ -33,6 +33,26 @@ export const Message = ({ onSave }: MessageProps) => {
           />
           <CKEditor
             editor={ClassicEditor}
+            config={{
+              toolbar: {
+                items: [
+                  'heading',
+                  '|',
+                  'bold',
+                  'italic',
+                  'link',
+                  'bulletedList',
+                  'numberedList',
+                  '|',
+                  'outdent',
+                  'indent',
+                  '|',
+                  'blockQuote',
+                  'undo',
+                  'redo',
+                ],
+              },
+            }}
             data={message}
             // @ts-ignore
             onChange={(event, editor) => {

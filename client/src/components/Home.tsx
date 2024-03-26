@@ -1,4 +1,4 @@
-import { Flex } from '@chakra-ui/react';
+import { Flex, useBreakpoint } from '@chakra-ui/react';
 import { Sender } from './Sender';
 import { Message } from './Message';
 import { Recipients } from './Recipients';
@@ -15,6 +15,7 @@ export const Home = () => {
   const getUserData = useGetUserData(user?.uid);
   const updateUserData = useUpdateUserData();
   const [from, setFrom] = useState(user?.email || '');
+  const breakpoint = useBreakpoint();
 
   if (getUserData.isLoading) {
     return <div>Loading...</div>;
@@ -75,8 +76,15 @@ export const Home = () => {
   return (
     <Flex gap={4} direction="column" width="100%">
       <NavBar />
-      <Flex px={4} gap={4} width="100%">
-        <Flex gap={4} direction="column">
+      <Flex
+        px={4}
+        gap={4}
+        width="100%"
+        direction={
+          breakpoint === 'xl' || breakpoint === '2xl' ? 'row' : 'column'
+        }
+      >
+        <Flex gap={4} direction="column" flex="1 1 auto">
           <Sender
             from={from}
             setFrom={setFrom}
@@ -86,15 +94,18 @@ export const Home = () => {
           />
           <Message onSave={handleSaveMessage} />
         </Flex>
-        <Recipients
-          recipients={recipients || []}
-          from={from}
-          name={name}
-          appPassword={appPassword}
-          subject={subject}
-          message={message}
-          onSave={handleSaveRecipients}
-        />
+
+        <Flex gap={4} direction="column" flex="1 1 auto">
+          <Recipients
+            recipients={recipients || []}
+            from={from}
+            name={name}
+            appPassword={appPassword}
+            subject={subject}
+            message={message}
+            onSave={handleSaveRecipients}
+          />
+        </Flex>
       </Flex>
     </Flex>
   );

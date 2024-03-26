@@ -32,7 +32,7 @@ export const Sender = ({
   const [appPassword, setAppPassword] = useState(p);
   const [name, setName] = useState(n);
   return (
-    <Card flex={1}>
+    <Card>
       <CardHeader>Sender</CardHeader>
       <Flex gap={4} direction="column">
         <TableContainer>

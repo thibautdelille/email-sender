@@ -3,7 +3,6 @@ import {
   Card,
   CardBody,
   CardFooter,
-  CardHeader,
   Flex,
   Table,
   TableContainer,
@@ -15,6 +14,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Slider } from './Slider';
 import { RecipientType } from '../types';
+import { CardHeader } from './CardHeader';
 
 type AutomateProps = {
   recipients: RecipientType[];
@@ -65,12 +65,9 @@ export const Automate = ({
       return;
     }
 
-    console.log('isRunning:: and has unSentRecipients');
     const recipient = unSentRecipients[0];
     // send the email
-    console.log('currentInterval', currentInterval);
     if (currentInterval === 1) {
-      console.log('send Message');
       onSendMessage(recipients.indexOf(recipient), recipient);
       const random =
         Math.floor(Math.random() * (interval[1] - interval[0] + 1)) +
@@ -88,22 +85,15 @@ export const Automate = ({
   }, [currentInterval]);
 
   useEffect(() => {
-    console.log('useEffect::Recipients', data);
-    console.log(
-      'useEffect::data.filter((r) => !r.sent)',
-      data.filter((r) => !r.sent)
-    );
     setRecipients(data);
     setUnSentRecipients(data.filter((r) => !r.sent));
   }, [data]);
 
   const handleStart = () => {
-    console.log('Starting automation');
     setCurrentInterval(1);
   };
 
   const handleStop = () => {
-    console.log('Stopping automation');
     setCurrentInterval(0);
   };
 
@@ -111,7 +101,7 @@ export const Automate = ({
     if (isPending) {
       return 'Sending email...';
     }
-    if (isRunning) {
+    if (isRunning && unSentRecipients[0]) {
       return `Next email in ${currentInterval - 1} seconds to ${
         unSentRecipients[0]?.email
       }`;

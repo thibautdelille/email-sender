@@ -77,6 +77,8 @@ export const Recipients = ({
     // Check if user has entered the file
     if (e.target.files?.length) {
       const inputFile = e.target.files[0];
+      e.target.type = 'text';
+      e.target.type = 'file';
 
       // Check the file extensions, if it not
       // included in the allowed extensions
@@ -118,6 +120,7 @@ export const Recipients = ({
       if (!keys.includes('name') || !keys.includes('email')) {
         return alert('Invalid CSV file');
       }
+      inputRef.current!.files = null;
       setData(parsedData as Array<RecipientType>);
       onSave(parsedData as Array<RecipientType>);
     };
@@ -163,7 +166,6 @@ export const Recipients = ({
 
   const showError = (index: number) => {
     // set the recipient status to success
-    const recipient = data[index];
     setData((prev) => {
       onSave(
         prev.map((item, i) => {
@@ -204,12 +206,10 @@ export const Recipients = ({
         },
         {
           onSuccess: (response) => {
-            console.log('onSuccess', response);
             showSuccess(index);
             resolve(response);
           },
           onError: (e) => {
-            console.log('onError', e);
             const data = (e as AxiosError).response?.data as string;
             setErrorMessage(data || e.message);
             reject(e);
@@ -226,7 +226,7 @@ export const Recipients = ({
     });
   };
   return (
-    <Flex gap={4} direction="column">
+    <>
       <Automate
         recipients={data}
         onSendMessage={sendMessageHandler}
@@ -283,6 +283,6 @@ export const Recipients = ({
           type="File"
         />
       </Box>
-    </Flex>
+    </>
   );
 };

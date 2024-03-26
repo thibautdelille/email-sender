@@ -30,7 +30,6 @@ exports.sendMail = functions.https.onRequest((req, res) => {
       html: decodeURIComponent(message), // email content in HTML
     };
 
-    return res.send('Sended');
     // returning result
     return transporter.sendMail(mailOptions, (error) => {
       if (error) {
