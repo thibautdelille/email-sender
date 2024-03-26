@@ -12,30 +12,27 @@ import {
   Text,
   Tr,
 } from '@chakra-ui/react';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Slider } from './Slider';
 import { RecipientType } from '../types';
 
 type AutomateProps = {
   recipients: RecipientType[];
+  isPending: boolean;
   onSendMessage: (index: number, recipient: RecipientType) => void;
 };
 
-let currentTimeout: NodeJS.Timeout;
-
 export const Automate = ({
   recipients: data,
+  isPending,
   onSendMessage,
 }: AutomateProps) => {
   const [recipients, setRecipients] = useState(data);
   const [opHours, setOpHours] = useState([11, 17]);
   const [interval, setInterval] = useState([30, 50]);
   const [currentInterval, setCurrentInterval] = useState(0);
-  const [nextRecipient, setNextRecipient] = useState<RecipientType | null>(
-    null
-  );
+  const [unSentRecipients, setUnSentRecipients] = useState<RecipientType[]>([]);
 
-  const [isRunning, setIsRunning] = useState(false);
   const updateCurrentInterval = (interval: number) => {
     setCurrentInterval(interval);
     if (interval > 0) {
@@ -44,63 +41,83 @@ export const Automate = ({
     }
   };
 
+  const isRunning = useMemo(() => currentInterval > 0, [currentInterval]);
+
+  const ref = useRef({
+    unSentRecipients,
+    interval,
+    onSendMessage,
+    recipients,
+  });
+
+  ref.current = {
+    unSentRecipients,
+    interval,
+    onSendMessage,
+    recipients,
+  };
+
+  useEffect(() => {
+    const { unSentRecipients, interval, onSendMessage, recipients } =
+      ref.current;
+    if (!currentInterval || unSentRecipients.length === 0) {
+      setCurrentInterval(0);
+      return;
+    }
+
+    console.log('isRunning:: and has unSentRecipients');
+    const recipient = unSentRecipients[0];
+    // send the email
+    console.log('currentInterval', currentInterval);
+    if (currentInterval === 1) {
+      console.log('send Message');
+      onSendMessage(recipients.indexOf(recipient), recipient);
+      const random =
+        Math.floor(Math.random() * (interval[1] - interval[0] + 1)) +
+        interval[0];
+      setCurrentInterval(random);
+      return;
+    }
+    const timeout = setTimeout(() => {
+      setCurrentInterval((prev) => prev - 1);
+    }, 1000);
+
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [currentInterval]);
+
   useEffect(() => {
     console.log('useEffect::Recipients', data);
-    setRecipients(data);
-  }, [data]);
-
-  const sendEmail = useCallback(() => {
-    console.log('Sending email');
-    // find the the first recipient that has not been sent
-
-    const unSentRecipients = recipients.filter((r) => !r.sent);
-    const recipient = unSentRecipients[0];
-    const next = unSentRecipients.length > 1 ? unSentRecipients[1] : null;
-
-    console.log('Sending email: recipients', recipients);
-    console.log('Sending email: unSentRecipients', unSentRecipients);
-    console.log('Sending email: recipient', recipient);
     console.log(
-      'Sending email: recipients.indexOf(recipient)',
-      recipients.indexOf(recipient)
+      'useEffect::data.filter((r) => !r.sent)',
+      data.filter((r) => !r.sent)
     );
-    setNextRecipient(next);
-
-    if (!recipient) {
-      console.log('All recipients have been sent');
-      setIsRunning(false);
-      return;
-    }
-    // send the email
-    onSendMessage(recipients.indexOf(recipient), recipient);
-
-    if (!next) {
-      console.log('All recipients have been sent');
-      setIsRunning(false);
-      return;
-    }
-
-    // get a random number between the interval
-    const random =
-      Math.floor(Math.random() * (interval[1] - interval[0] + 1)) + interval[0];
-    setTimeout(() => updateCurrentInterval(random), 1000);
-
-    currentTimeout = setTimeout(() => {
-      sendEmail();
-    }, random * 1000);
-  }, [recipients, interval, onSendMessage]);
+    setRecipients(data);
+    setUnSentRecipients(data.filter((r) => !r.sent));
+  }, [data]);
 
   const handleStart = () => {
     console.log('Starting automation');
-    setIsRunning(true);
-    sendEmail();
+    setCurrentInterval(1);
   };
 
   const handleStop = () => {
     console.log('Stopping automation');
-    clearTimeout(currentTimeout);
-    setIsRunning(false);
+    setCurrentInterval(0);
   };
+
+  const message = useMemo(() => {
+    if (isPending) {
+      return 'Sending email...';
+    }
+    if (isRunning) {
+      return `Next email in ${currentInterval - 1} seconds to ${
+        unSentRecipients[0]?.email
+      }`;
+    }
+    return 'Automation stopped';
+  }, [isPending, isRunning, currentInterval, unSentRecipients]);
   return (
     <Card flex={1}>
       <CardHeader>Automate</CardHeader>
@@ -148,11 +165,7 @@ export const Automate = ({
         </CardBody>
         <CardFooter borderTop="1px solid" borderColor="gray.100">
           <Flex justify="flex-end" width="100%">
-            <Text fontSize="sm">
-              {isRunning
-                ? `Next email in ${currentInterval} seconds to ${nextRecipient?.email}`
-                : 'Automation stopped'}
-            </Text>
+            <Text fontSize="sm">{message}</Text>
           </Flex>
         </CardFooter>
       </Flex>

@@ -131,19 +131,17 @@ export const Recipients = ({
     }
   };
 
-  const onUpdateRecipient = (index: number, recipient: RecipientType) => {
-    const updatedData = [...data];
-    updatedData[index] = recipient;
-    setData(updatedData);
-    onSave(updatedData);
-  };
-
   const showSuccess = (index: number) => {
     // set the recipient status to success
-    const recipient = data[index];
-    onUpdateRecipient(index, { ...recipient, sent: true });
-
     setData((prev) => {
+      onSave(
+        prev.map((item, i) => {
+          if (i === index) {
+            return { ...item, sent: true };
+          }
+          return item;
+        })
+      );
       return prev.map((item, i) => {
         if (i === index) {
           return { ...item, status: 'success', sent: true };
@@ -166,8 +164,15 @@ export const Recipients = ({
   const showError = (index: number) => {
     // set the recipient status to success
     const recipient = data[index];
-    onUpdateRecipient(index, { ...recipient, sent: false });
     setData((prev) => {
+      onSave(
+        prev.map((item, i) => {
+          if (i === index) {
+            return { ...item, sent: false };
+          }
+          return item;
+        })
+      );
       return prev.map((item, i) => {
         if (i === index) {
           return { ...item, status: 'error', sent: false };
@@ -222,7 +227,11 @@ export const Recipients = ({
   };
   return (
     <Flex gap={4} direction="column">
-      <Automate recipients={data} onSendMessage={sendMessageHandler} />
+      <Automate
+        recipients={data}
+        onSendMessage={sendMessageHandler}
+        isPending={sendEmail.isPending}
+      />
       <Card>
         <CardHeader>Recipients</CardHeader>
         {error && <Text color="red.500">{error}</Text>}
