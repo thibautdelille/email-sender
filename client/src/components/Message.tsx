@@ -1,9 +1,9 @@
-import { Card, CardBody, Flex, Input } from '@chakra-ui/react';
+import { Button, Card, CardBody, Flex, Input } from '@chakra-ui/react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import { CardHeader } from './CardHeader';
 import { MessageData } from '../types';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 type MessageProps = {
   message: string;
@@ -14,6 +14,14 @@ type MessageProps = {
 export const Message = ({ message: m, subject: s, onSave }: MessageProps) => {
   const [subject, setSubject] = useState(s);
   const [message, setMessage] = useState(m);
+
+  const isDisabled = useMemo(() => {
+    console.log('subject', subject);
+    console.log('message', message);
+    console.log('m', m);
+    console.log('s', s);
+    return subject === s && message === m;
+  }, [subject, message, m, s]);
   return (
     <Card>
       <CardHeader>Message</CardHeader>
@@ -26,9 +34,6 @@ export const Message = ({ message: m, subject: s, onSave }: MessageProps) => {
             value={subject}
             onChange={(e) => {
               setSubject(e.target.value);
-            }}
-            onBlur={() => {
-              onSave({ subject, message });
             }}
           />
           <CKEditor
@@ -58,11 +63,17 @@ export const Message = ({ message: m, subject: s, onSave }: MessageProps) => {
             onChange={(event, editor) => {
               setMessage(editor.data.get());
             }}
-            // @ts-ignore
-            onBlur={(event, editor) => {
-              onSave({ subject, message });
-            }}
           />
+          <Flex justify="flex-end">
+            <Button
+              size="sm"
+              onClick={() => onSave({ subject, message })}
+              isDisabled={isDisabled}
+              colorScheme={!isDisabled ? 'blue' : undefined}
+            >
+              Save
+            </Button>
+          </Flex>
         </Flex>
       </CardBody>
     </Card>
