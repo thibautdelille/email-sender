@@ -74,7 +74,7 @@ export const Home = () => {
   };
 
   return (
-    <Flex gap={4} direction="column" width="100%">
+    <Flex gap={4} direction="column" width="100%" pb={4}>
       <NavBar />
       <Flex
         px={4}
