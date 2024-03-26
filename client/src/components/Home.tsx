@@ -8,7 +8,6 @@ import { useUser } from '../provider/userProvider';
 import { useGetUserData } from '../api/getUserData';
 import { useUpdateUserData } from '../api/updateUserData';
 import { MessageData, RecipientType, SenderData } from '../types';
-import { Automate } from './Automate';
 
 export const Home = () => {
   const { user } = useUser();
