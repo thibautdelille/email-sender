@@ -1,6 +1,6 @@
 // Filename - App.js
 
-import React, { useState, ChangeEvent, useEffect } from 'react';
+import React, { useState, ChangeEvent } from 'react';
 import Papa from 'papaparse';
 import {
   Box,
