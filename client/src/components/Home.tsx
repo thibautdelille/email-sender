@@ -91,7 +91,11 @@ export const Home = () => {
             name={name}
             onSave={handleSave}
           />
-          <Message onSave={handleSaveMessage} />
+          <Message
+            onSave={handleSaveMessage}
+            message={message}
+            subject={subject}
+          />
         </Flex>
 
         <Flex gap={4} direction="column" flex="1 1 auto">

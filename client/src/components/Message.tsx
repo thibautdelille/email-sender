@@ -3,17 +3,17 @@ import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import { CardHeader } from './CardHeader';
 import { MessageData } from '../types';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 type MessageProps = {
+  message: string;
+  subject: string;
   onSave: ({ subject, message }: MessageData) => void;
 };
 
-export const Message = ({ onSave }: MessageProps) => {
-  const [subject, setSubject] = useState('');
-  const [message, setMessage] = useState(
-    '<p>Hello {name},<br/>Enter your message<br/>Your name</p>'
-  );
+export const Message = ({ message: m, subject: s, onSave }: MessageProps) => {
+  const [subject, setSubject] = useState(s);
+  const [message, setMessage] = useState(m);
   return (
     <Card>
       <CardHeader>Message</CardHeader>
