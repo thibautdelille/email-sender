@@ -1,4 +1,11 @@
-import { Button, Card, CardBody, Flex, Input } from '@chakra-ui/react';
+import {
+  Button,
+  Card,
+  CardBody,
+  Flex,
+  Input,
+  Textarea,
+} from '@chakra-ui/react';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import { CardHeader } from './CardHeader';
@@ -14,8 +21,13 @@ type MessageProps = {
 export const Message = ({ message: m, subject: s, onSave }: MessageProps) => {
   const [subject, setSubject] = useState(s);
   const [message, setMessage] = useState(m);
+  const [showSource, setShowSource] = useState(false);
 
   const isDisabled = useMemo(() => {
+    console.log('subject', subject);
+    console.log('message', message);
+    console.log('m', m);
+    console.log('s', s);
     return subject === s && message === m;
   }, [subject, message, m, s]);
   return (
@@ -32,35 +44,45 @@ export const Message = ({ message: m, subject: s, onSave }: MessageProps) => {
               setSubject(e.target.value);
             }}
           />
-          <CKEditor
-            editor={ClassicEditor}
-            config={{
-              toolbar: {
-                items: [
-                  'heading',
-                  '|',
-                  'bold',
-                  'italic',
-                  'link',
-                  'bulletedList',
-                  'numberedList',
-                  '|',
-                  'outdent',
-                  'indent',
-                  '|',
-                  'blockQuote',
-                  'undo',
-                  'redo',
-                ],
-              },
-            }}
-            data={message}
-            // @ts-ignore
-            onChange={(event, editor) => {
-              setMessage(editor.data.get());
-            }}
-          />
-          <Flex justify="flex-end">
+          {showSource ? (
+            <Textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+            />
+          ) : (
+            <CKEditor
+              editor={ClassicEditor}
+              config={{
+                toolbar: {
+                  items: [
+                    'heading',
+                    '|',
+                    'bold',
+                    'italic',
+                    'link',
+                    'bulletedList',
+                    'numberedList',
+                    '|',
+                    'outdent',
+                    'indent',
+                    '|',
+                    'blockQuote',
+                    'undo',
+                    'redo',
+                  ],
+                },
+              }}
+              data={message}
+              // @ts-ignore
+              onChange={(event, editor) => {
+                setMessage(editor.data.get());
+              }}
+            />
+          )}
+          <Flex justify="space-between">
+            <Button size="sm" onClick={() => setShowSource(!showSource)}>
+              Show source
+            </Button>
             <Button
               size="sm"
               onClick={() => onSave({ subject, message })}

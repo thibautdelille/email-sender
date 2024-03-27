@@ -79,6 +79,7 @@ export const Home = () => {
         px={4}
         gap={4}
         width="100%"
+        align="flex-start"
         direction={
           breakpoint === 'xl' || breakpoint === '2xl' ? 'row' : 'column'
         }
