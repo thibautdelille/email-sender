@@ -16,10 +16,6 @@ export const Message = ({ message: m, subject: s, onSave }: MessageProps) => {
   const [message, setMessage] = useState(m);
 
   const isDisabled = useMemo(() => {
-    console.log('subject', subject);
-    console.log('message', message);
-    console.log('m', m);
-    console.log('s', s);
     return subject === s && message === m;
   }, [subject, message, m, s]);
   return (

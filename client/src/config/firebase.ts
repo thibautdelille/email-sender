@@ -18,8 +18,6 @@ const firebaseConfig = {
   appId: `1:${id}:web:${id}`,
 };
 
-console.log(firebaseConfig);
-
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 // Initialize Firebase

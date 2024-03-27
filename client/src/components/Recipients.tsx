@@ -247,7 +247,7 @@ export const Recipients = ({
             </Flex>
           </CardBody>
           <Divider />
-          {data.length && (
+          {data.length ? (
             <TableContainer>
               <Table>
                 <Thead>
@@ -271,7 +271,7 @@ export const Recipients = ({
                 </Tbody>
               </Table>
             </TableContainer>
-          )}
+          ) : null}
         </Flex>
       </Card>
       <Box display="none">

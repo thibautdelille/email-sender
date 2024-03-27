@@ -26,12 +26,13 @@ export const useGetUserData = (userId?: string) => {
   if (!query.data) {
     return query;
   }
+
   const userData: UserData = {
-    appPassword: query.data.get('appPassword'),
-    name: query.data.get('name'),
-    subject: query.data.get('subject'),
-    message: query.data.get('message'),
-    recipients: query.data.get('recipients'),
+    appPassword: query.data.get('appPassword') || '',
+    name: query.data.get('name') || '',
+    subject: query.data.get('subject') || '',
+    message: query.data.get('message') || '',
+    recipients: query.data.get('recipients') || '',
   };
 
   return {

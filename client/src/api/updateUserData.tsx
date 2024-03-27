@@ -4,6 +4,7 @@ import { useUser } from '../provider/userProvider';
 import { db } from '../config/firebase';
 import { UserData } from '../types';
 import { useToast } from '@chakra-ui/react';
+import { useEffect } from 'react';
 
 type UpdateUserData = {
   userId: string;
@@ -20,7 +21,8 @@ const updateUserData = ({
   userId: string;
 } & UserData) => {
   const usersRef = collection(db, 'userData');
-  return setDoc(doc(usersRef, userId), {
+  const userDoc = doc(usersRef, userId);
+  return setDoc(userDoc, {
     appPassword,
     name,
     message,
@@ -51,6 +53,18 @@ export const useUpdateUserData = () => {
       queryClient.invalidateQueries({ queryKey: ['userData'] });
     },
   });
+
+  useEffect(() => {
+    if (mutation.isError) {
+      toast({
+        title: 'Error',
+        description: mutation.error.message,
+        status: 'error',
+        duration: 9000,
+        isClosable: true,
+      });
+    }
+  }, [mutation.isError]);
 
   return mutation;
 };
