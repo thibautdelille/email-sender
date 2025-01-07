@@ -4,10 +4,10 @@ import { Message } from './Message';
 import { Recipients } from './Recipients';
 import { useState } from 'react';
 import { NavBar } from './NavBar';
-import { useUser } from '../provider/userProvider';
 import { useGetUserData } from '../api/getUserData';
 import { useUpdateUserData } from '../api/updateUserData';
 import { MessageData, RecipientType, SenderData } from '../types';
+import { useUser } from '../hooks/useUser';
 
 export const Home = () => {
   const { user } = useUser();
@@ -104,7 +104,6 @@ export const Home = () => {
             recipients={recipients || []}
             from={from}
             name={name}
-            appPassword={appPassword}
             subject={subject}
             message={message}
             onSave={handleSaveRecipients}

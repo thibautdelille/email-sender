@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { collection, doc, setDoc } from 'firebase/firestore';
-import { useUser } from '../provider/userProvider';
+import { useUser } from '../hooks/useUser';
 import { db } from '../config/firebase';
 import { UserData } from '../types';
 import { useToast } from '@chakra-ui/react';

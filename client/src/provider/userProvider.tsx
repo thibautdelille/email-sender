@@ -1,21 +1,22 @@
 import { User, onAuthStateChanged } from 'firebase/auth';
-import React, { createContext, useState } from 'react';
+import React, { useState } from 'react';
 import { auth } from '../config/firebase';
-
-type UserContextType = {
-  user: User | null;
-};
-const userContext = createContext<UserContextType | undefined>(undefined);
+import { userContext } from './userContext';
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(auth.currentUser);
-  onAuthStateChanged(auth, (u) => {
+  const [accessToken, setAccessToken] = useState<string | undefined>(undefined);
+  onAuthStateChanged(auth, async (u) => {
     if (u) {
       // User is signed in
       setUser(u);
+      const accessToken =
+        window.localStorage.getItem('accessToken') || undefined;
+      setAccessToken(accessToken);
     } else {
       // User is signed out
       setUser(null);
+      setAccessToken(undefined);
     }
   });
 
@@ -23,17 +24,11 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     <userContext.Provider
       value={{
         user,
+        accessToken,
+        setAccessToken,
       }}
     >
       {children}
     </userContext.Provider>
   );
-};
-
-export const useUser = () => {
-  const context = React.useContext(userContext);
-  if (context === undefined) {
-    throw new Error('useUser must be used within a UserProvider');
-  }
-  return context;
 };

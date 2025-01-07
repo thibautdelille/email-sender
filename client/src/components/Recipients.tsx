@@ -34,7 +34,6 @@ type RecipientsProps = {
   name: string;
   message: string;
   subject: string;
-  appPassword: string;
   onSave: (recipients: RecipientType[]) => void;
 };
 
@@ -46,7 +45,6 @@ export const Recipients = ({
   recipients,
   from,
   name,
-  appPassword,
   subject,
   message,
   onSave,
@@ -202,7 +200,7 @@ export const Recipients = ({
           name,
           subject,
           message: encodeURIComponent(replaceAllName(message, recipient.name)),
-          password: appPassword,
+          // password: appPassword,
         },
         {
           onSuccess: (response) => {
