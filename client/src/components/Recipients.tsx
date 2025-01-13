@@ -30,7 +30,6 @@ const allowedExtensions = ['csv'];
 
 type RecipientsProps = {
   recipients: RecipientType[] | undefined;
-  from: string;
   name: string;
   message: string;
   subject: string;
@@ -43,7 +42,6 @@ function replaceAllName(message: string, name: string) {
 
 export const Recipients = ({
   recipients,
-  from,
   name,
   subject,
   message,
@@ -195,12 +193,10 @@ export const Recipients = ({
     const savePromise = new Promise((resolve, reject) => {
       sendEmail.mutate(
         {
-          from,
           to: recipient.email,
           name,
           subject,
           message: encodeURIComponent(replaceAllName(message, recipient.name)),
-          // password: appPassword,
         },
         {
           onSuccess: (response) => {

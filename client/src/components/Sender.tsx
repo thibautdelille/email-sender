@@ -16,51 +16,22 @@ import { useMemo, useState } from 'react';
 import { SenderData } from '../types';
 
 type SenderProps = {
-  from: string;
-  setFrom: (from: string) => void;
-  appPassword: string;
   name: string;
-
   onSave: ({ name, appPassword }: SenderData) => void;
 };
 
-export const Sender = ({
-  from,
-  setFrom,
-  appPassword: p,
-  name: n,
-  onSave,
-}: SenderProps) => {
-  const [appPassword, setAppPassword] = useState(p);
+export const Sender = ({ name: n, onSave }: SenderProps) => {
   const [name, setName] = useState(n);
 
   const isDisabled = useMemo(() => {
-    return appPassword === p && name === n;
-  }, [appPassword, name, n, p]);
+    return name === n;
+  }, [name, n]);
   return (
     <Card>
       <CardHeader>Sender</CardHeader>
       <TableContainer>
         <Table variant="unstyled">
           <Tbody>
-            <Tr>
-              <Td>
-                <Text fontSize="sm" fontWeight="bold">
-                  Email Address
-                </Text>
-              </Td>
-              <Td>
-                <Input
-                  size="sm"
-                  type="email"
-                  placeholder="from"
-                  value={from}
-                  onChange={(e) => {
-                    setFrom(e.target.value);
-                  }}
-                />
-              </Td>
-            </Tr>
             <Tr>
               <Td>
                 <Text fontSize="sm" fontWeight="bold">
@@ -79,24 +50,6 @@ export const Sender = ({
                 />
               </Td>
             </Tr>
-            <Tr>
-              <Td>
-                <Text fontSize="sm" fontWeight="bold">
-                  App password
-                </Text>
-              </Td>
-              <Td>
-                <Input
-                  size="sm"
-                  type="password"
-                  placeholder="enter app password"
-                  value={appPassword}
-                  onChange={(e) => {
-                    setAppPassword(e.target.value);
-                  }}
-                />
-              </Td>
-            </Tr>
           </Tbody>
         </Table>
       </TableContainer>
@@ -104,7 +57,7 @@ export const Sender = ({
         <Flex justify="flex-end">
           <Button
             size="sm"
-            onClick={() => onSave({ appPassword, name })}
+            onClick={() => onSave({ name, appPassword: '' })}
             isDisabled={isDisabled}
             colorScheme={!isDisabled ? 'blue' : undefined}
           >

@@ -3,19 +3,18 @@ import axios, { AxiosResponse } from 'axios';
 import { useUser } from '../hooks/useUser';
 
 type EmailParams = {
-  from: string;
   to: string;
   name: string;
   subject: string;
   message: string;
-  // password: string;
 };
 
 const sendEmail = (
   params: EmailParams,
-  accessToken: string | undefined
+  accessToken: string | undefined,
+  googleAccessToken: string | undefined
 ): Promise<AxiosResponse<unknown, unknown>> => {
-  if (!accessToken) {
+  if (!accessToken || !googleAccessToken) {
     return new Promise((_, reject) => {
       reject(new Error('No access token'));
     });
@@ -24,11 +23,13 @@ const sendEmail = (
   return axios.post(`${import.meta.env.VITE_DOMAIN_NAME}sendMail`, {
     ...params,
     accessToken,
+    googleAccessToken,
   });
 };
 export const useSendEmail = () => {
-  const { accessToken } = useUser();
+  const { accessToken, googleAccessToken } = useUser();
   return useMutation({
-    mutationFn: (params: EmailParams) => sendEmail(params, accessToken),
+    mutationFn: (params: EmailParams) =>
+      sendEmail(params, accessToken, googleAccessToken),
   });
 };

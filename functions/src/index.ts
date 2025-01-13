@@ -46,9 +46,17 @@ const corsHandler = cors({ origin: true });
 exports.sendMail = functions.https.onRequest((req, res) => {
   corsHandler(req, res, async () => {
     try {
-      const { to, subject, message, accessToken, from } = req.body;
+      const { to, subject, message, accessToken, name, googleAccessToken } =
+        req.body;
 
-      if (!to || !subject || !message || !accessToken || !from) {
+      if (
+        !to ||
+        !subject ||
+        !message ||
+        !accessToken ||
+        !googleAccessToken ||
+        !name
+      ) {
         res
           .status(400)
           .send('Missing required fields: to, subject, message, accessToken.');
@@ -62,11 +70,11 @@ exports.sendMail = functions.https.onRequest((req, res) => {
 
       // We don't need to verify the token as it's a Google OAuth token
       const oAuth2Client = new google.auth.OAuth2();
-      oAuth2Client.setCredentials({ access_token: accessToken });
+      oAuth2Client.setCredentials({ access_token: googleAccessToken });
 
       // Get token info to see the scopes
       try {
-        const tokenInfo = await oAuth2Client.getTokenInfo(accessToken);
+        const tokenInfo = await oAuth2Client.getTokenInfo(googleAccessToken);
         console.log('Token info (including scopes):', tokenInfo);
 
         if (
@@ -83,14 +91,12 @@ exports.sendMail = functions.https.onRequest((req, res) => {
       }
 
       const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
-      // console.log('gmail:', gmail);
-
       // Decode the URL-encoded message
       const decodedMessage = decodeURIComponent(message);
 
       // Create the email with proper MIME formatting
       const emailLines = [
-        `From: ${from} <${decodedToken.email}>`,
+        `From: ${name} <${decodedToken.email}>`,
         `To: ${to}`,
         `Subject: ${subject}`,
         'MIME-Version: 1.0',
@@ -98,6 +104,8 @@ exports.sendMail = functions.https.onRequest((req, res) => {
         '',
         decodedMessage,
       ];
+
+      console.log('emailLines', emailLines);
 
       const email = emailLines.join('\r\n');
 
