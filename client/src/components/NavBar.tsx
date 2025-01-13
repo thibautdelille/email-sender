@@ -1,6 +1,6 @@
 import { Button, DarkMode, Flex, Text } from '@chakra-ui/react';
-import { useUser } from '../provider/userProvider';
 import { useSignOut } from '../api/signOut';
+import { useUser } from '../hooks/useUser';
 
 export const NavBar = () => {
   const { user } = useUser();

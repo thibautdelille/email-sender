@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { doc, getDoc } from 'firebase/firestore';
-import { useUser } from '../provider/userProvider';
 import { db } from '../config/firebase';
 import { UserData } from '../types';
+import { useUser } from '../hooks/useUser';
 
 const getUserData = (userId?: string) => {
   if (!userId) {
