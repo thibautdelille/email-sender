@@ -64,7 +64,7 @@ export const useUpdateUserData = () => {
         isClosable: true,
       });
     }
-  }, [mutation.isError]);
+  }, [mutation.isError, mutation.error, toast]);
 
   return mutation;
 };

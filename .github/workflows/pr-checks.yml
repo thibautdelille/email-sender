@@ -1,0 +1,50 @@
+name: Pull Request Checks
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  check-client:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Client Dependencies
+        working-directory: ./client
+        run: npm ci
+
+      - name: Run Client Linting
+        working-directory: ./client
+        run: npm run lint
+
+      - name: Check Client TypeScript
+        working-directory: ./client
+        run: npm run build
+
+  check-functions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Functions Dependencies
+        working-directory: ./functions
+        run: npm ci
+
+      - name: Run Functions Linting
+        working-directory: ./functions
+        run: npm run lint
+
+      - name: Check Functions TypeScript
+        working-directory: ./functions
+        run: npm run build
