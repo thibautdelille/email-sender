@@ -73,8 +73,7 @@ export const Message = ({ message: m, subject: s, onSave }: MessageProps) => {
                 },
               }}
               data={message}
-              // @ts-ignore
-              onChange={(event, editor) => {
+              onChange={(_, editor) => {
                 setMessage(editor.data.get());
               }}
             />

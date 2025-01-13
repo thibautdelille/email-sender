@@ -33,14 +33,6 @@ export const Automate = ({
   const [currentInterval, setCurrentInterval] = useState(0);
   const [unSentRecipients, setUnSentRecipients] = useState<RecipientType[]>([]);
 
-  const updateCurrentInterval = (interval: number) => {
-    setCurrentInterval(interval);
-    if (interval > 0) {
-      setTimeout(() => updateCurrentInterval(interval - 1), 1000);
-      return;
-    }
-  };
-
   const isRunning = useMemo(() => currentInterval > 0, [currentInterval]);
 
   const ref = useRef({
