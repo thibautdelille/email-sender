@@ -13,12 +13,10 @@ export const useSignInWithGoogle = () => {
   return useMutation({
     mutationFn: signInWithGoogle,
     onSuccess: async (result) => {
-      console.log('result', result);
       const credential = GoogleAuthProvider.credentialFromResult(result);
       const token = credential?.accessToken;
       window.localStorage.setItem(LS_KEY_ACCESS_TOKEN, token as string);
       setGoogleAccessToken(token);
-      console.log('useSignInWithGoogle > tokenResult', token);
     },
   });
 };

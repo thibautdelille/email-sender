@@ -1,5 +1,4 @@
 import { Button, DarkMode, Flex, Text } from '@chakra-ui/react';
-
 import { useSignOut } from '../api/signOut';
 import { useUser } from '../hooks/useUser';
 
