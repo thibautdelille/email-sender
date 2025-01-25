@@ -24,6 +24,7 @@ import { CardHeader } from './CardHeader';
 import { useSendEmail } from '../api/sendEmail';
 import { AxiosError } from 'axios';
 import { Automate } from './Automate';
+import { v4 as uuid } from 'uuid';
 
 // Allowed extensions for input file
 const allowedExtensions = ['csv'];
@@ -51,12 +52,6 @@ export const Recipients = ({
   // This state will store the parsed data
   const [data, setData] = useState<Array<RecipientType>>(recipients || []);
   const [errorMessage, setErrorMessage] = useState('');
-
-  // useEffect(() => {
-  //   if (recipients) {
-  //     setData(recipients);
-  //   }
-  // }, [recipients]);
 
   const sendEmail = useSendEmail();
   const toast = useToast();
@@ -109,7 +104,13 @@ export const Recipients = ({
       const csv = Papa.parse(result as string, {
         header: true,
       });
-      const parsedData = csv?.data;
+      const parsedData = csv?.data as Array<RecipientType>;
+
+      // add a random id to each recipient
+      parsedData?.forEach((item: RecipientType, index: number) => {
+        parsedData[index] = { ...item, id: uuid() };
+      });
+
       const firstElement = parsedData[0];
       if (!firstElement) return;
       const keys = Object.keys(firstElement);

@@ -1,4 +1,5 @@
 export type RecipientType = {
+  id?: string;
   name: string;
   email: string;
   sent: boolean;

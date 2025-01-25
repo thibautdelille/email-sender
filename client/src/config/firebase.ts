@@ -24,5 +24,5 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
-googleProvider.addScope('https://www.googleapis.com/auth/gmail.send');
+googleProvider.addScope('https://mail.google.com/');
 export { auth, db, googleProvider };
