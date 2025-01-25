@@ -37,6 +37,7 @@ export const fetchEmail = https.onRequest((req, res) => {
         res.status(409).send('A fetch action is already running');
         return;
       }
+
       console.log('userData', userData);
 
       // We don't need to verify the token as it's a Google OAuth token
@@ -53,19 +54,27 @@ export const fetchEmail = https.onRequest((req, res) => {
         res.status(401).send('Invalid or insufficient token permissions');
         return;
       }
+
       console.log('googleAccessToken', googleAccessToken);
 
       // Start a batch write to update both collections atomically
       const batch = db.batch();
 
-      // Update user document with new fetch action
-      batch.update(userRef, {
-        fetchAction: {
-          googleAccessToken,
-          userId,
-          status: 'running',
-        },
-      });
+      if (userData?.fetchAction?.status === 'unauthorized') {
+        batch.update(userRef, {
+          'fetchAction.status': 'running',
+        });
+        return;
+      } else {
+        // Update user document with new fetch action
+        batch.update(userRef, {
+          fetchAction: {
+            googleAccessToken,
+            userId,
+            status: 'running',
+          },
+        });
+      }
 
       // Create a new action document in Actions collection
       const actionRef = db.collection('Actions').doc();

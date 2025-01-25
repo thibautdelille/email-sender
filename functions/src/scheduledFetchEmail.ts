@@ -2,8 +2,15 @@ import { https } from 'firebase-functions';
 import { google } from 'googleapis';
 import * as cors from 'cors';
 import * as admin from 'firebase-admin';
+import { RecipientType } from './types';
 
 const corsHandler = cors({ origin: true });
+
+// Generate a unique ID
+// eslint-disable-next-line require-jsdoc
+function generateId(): string {
+  return Math.random().toString(36).substring(2) + Date.now().toString(36);
+}
 
 export const scheduledFetchEmail = https.onRequest((req, res) => {
   corsHandler(req, res, async () => {
@@ -49,17 +56,31 @@ export const scheduledFetchEmail = https.onRequest((req, res) => {
               access_token: fetchAction.googleAccessToken,
             });
 
+            // Get token info to see the scopes
             try {
-              // Verify token
-              await oAuth2Client.getTokenInfo(fetchAction.googleAccessToken);
+              const tokenInfo = await oAuth2Client.getTokenInfo(
+                fetchAction.googleAccessToken
+              );
+              if (!tokenInfo.scopes?.includes('https://mail.google.com/')) {
+                throw new Error('Missing required Gmail scope');
+              }
+            } catch (error) {
+              await userRef.update({
+                'fetchAction.status': 'unauthorized',
+              });
+              await actionDoc.ref.delete();
+              res.status(401).send('Invalid or insufficient token permissions');
+            }
+            try {
+              const timeStart = Date.now();
 
               const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
-              const emailArray: string[] = [];
+              const contacts: Array<RecipientType> = [];
 
               // Get threads from currentInterval to nextInterval
               const threadsResponse = await gmail.users.threads.list({
                 userId: 'me',
-                maxResults: 10,
+                maxResults: 50,
                 pageToken: fetchAction.nextPageToken || undefined,
               });
 
@@ -96,40 +117,86 @@ export const scheduledFetchEmail = https.onRequest((req, res) => {
                   if (!headers) return;
 
                   // Extract email addresses from headers
-                  const emailFields = ['To', 'Cc', 'Bcc'];
+                  const emailFields = ['From', 'To', 'Cc', 'Bcc'];
                   emailFields.forEach((field) => {
                     const header = headers.find((h) => h.name === field);
                     if (header?.value) {
-                      const emails = header.value.match(
-                        /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g
-                      );
-                      if (emails) {
-                        console.log(
-                          `${field} emails from thread ${thread.id}:`,
-                          emails
+                      // Split multiple recipients
+                      const recipients = header.value
+                        .split(',')
+                        .map((recipient) => recipient.trim());
+
+                      recipients.forEach((recipient) => {
+                        // Match pattern:
+                        // "Display Name <email@example.com>"
+                        // or just "email@example.com"
+                        const match = recipient.match(
+                          // eslint-disable-next-line max-len
+                          /(?:"?([^"]*)"?\s)?(?:<)?([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(?:>)?/
                         );
-                        emailArray.push(...emails);
-                      }
+
+                        if (match) {
+                          const [, name, email] = match;
+                          const isNameEmail = name?.match(
+                            /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/
+                          );
+                          contacts.push({
+                            id: generateId(),
+                            email,
+                            name: name && !isNameEmail ? name.trim() : '',
+                            sent: false,
+                          });
+                        }
+                      });
                     }
                   });
                 });
               }
 
-              // const response = await gmail.users.messages.list({
-              //   userId: 'me',
-              //   labelIds: ['INBOX'],
-              //   maxResults: 10,
-              // });
+              // Now let's save the contact in the user recipients
+              const userData = userDoc.data();
+              const existingRecipients = userData?.recipients || [];
 
-              // console.log('gmail.users.messages.data', response.data);
-              res.status(200).send(emailArray);
+              // Filter out contacts that already exist
+              const newContacts = contacts.filter(
+                (contact) =>
+                  !existingRecipients.some(
+                    (existing: RecipientType) =>
+                      existing.email === contact.email
+                  )
+              );
+
+              // remove the duplicates
+              newContacts.sort((a, b) => a.email.localeCompare(b.email));
+              const uniqueContacts: Array<RecipientType> = [];
+              let currentContact: RecipientType | null = null;
+
+              for (const contact of newContacts) {
+                if (!currentContact || currentContact.email !== contact.email) {
+                  uniqueContacts.push(contact);
+                  currentContact = contact;
+                }
+              }
+
+              console.log(`newContacts.length: ${newContacts.length}`);
+              if (uniqueContacts.length > 0) {
+                console.time('update recipients');
+                await userRef.update({
+                  recipients: [...existingRecipients, ...uniqueContacts],
+                });
+                console.timeEnd('update recipients');
+              }
+
+              const timeEnd = Date.now();
+              const duration = timeEnd - timeStart;
+              res.status(200).send({ contacts, newContacts, duration });
             } catch (error) {
               // If token is expired or invalid
               console.error('Error processing action:', error);
-              // await userRef.update({
-              //   'fetchAction.status': 'error',
-              // });
-              // await actionDoc.ref.delete();
+              await userRef.update({
+                'fetchAction.status': 'error',
+              });
+              await actionDoc.ref.delete();
             }
           }
         }
