@@ -15,6 +15,7 @@ export const useSignInWithGoogle = () => {
     onSuccess: async (result) => {
       const credential = GoogleAuthProvider.credentialFromResult(result);
       const token = credential?.accessToken;
+      console.log(credential);
       window.localStorage.setItem(LS_KEY_ACCESS_TOKEN, token as string);
       setGoogleAccessToken(token);
     },
