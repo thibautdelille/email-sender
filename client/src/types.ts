@@ -1,4 +1,5 @@
 export type RecipientType = {
+  id?: string;
   name: string;
   email: string;
   sent: boolean;
@@ -15,7 +16,13 @@ export type MessageData = {
   message: string;
 };
 
+export type Action = {
+  userId?: string;
+  status?: 'success' | 'error' | 'idle' | 'running' | 'unauthorized';
+};
+
 export type UserData = SenderData &
   MessageData & {
     recipients?: RecipientType[];
+    fetchAction?: Action;
   };
