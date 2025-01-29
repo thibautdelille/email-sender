@@ -110,7 +110,7 @@ export const triggerFetchAction = async (
         const existingContact = existingRecipients.find(
           (r: RecipientType) => r.email === contact.email
         );
-        if (existingContact && contact.messages) {
+        if (existingContact?.messages && contact.messages) {
           contact.messages = [...existingContact.messages, ...contact.messages];
         }
       });

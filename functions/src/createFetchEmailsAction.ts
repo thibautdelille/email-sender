@@ -56,7 +56,10 @@ export const createFetchEmailsAction = https.onRequest((req, res) => {
       // Start a batch write to update both collections atomically
       const batch = db.batch();
 
-      if (userData?.fetchAction?.status === 'unauthorized') {
+      if (
+        userData?.fetchAction?.status === 'unauthorized' ||
+        userData?.fetchAction?.status === 'error'
+      ) {
         batch.update(userRef, {
           'fetchAction.googleAccessToken': googleAccessToken,
           'fetchAction.status': 'running',

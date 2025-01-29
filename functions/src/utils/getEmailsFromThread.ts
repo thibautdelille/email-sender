@@ -13,40 +13,37 @@ export const getEmailsFromThread = async (
     id: threadId,
   });
 
-  const messageLength = threadDetails.data.messages?.length || 0;
-
   // Process each message in thread
-  threadDetails.data.messages?.forEach((message, index) => {
+  threadDetails.data.messages?.forEach((message) => {
     const headers = message.payload?.headers;
-    console.log('message', message);
-    const isLastMessage = index === messageLength - 1;
-    if (isLastMessage) {
-      // get the body of the message
-      console.log('');
-      console.log('');
-      console.log('');
-      console.log('');
-      console.log('--------------message---------------');
-      console.log('message.id', message.id);
-      console.log('snippet', message.snippet);
-      const body = message.payload?.body?.data;
-      const decodedBody = body
-        ? Buffer.from(body as string, 'base64').toString()
-        : '';
-      console.log('body', decodedBody);
-      message.payload?.parts?.forEach((part, index) => {
-        if (part.mimeType === 'text/plain') {
-          const bodyPart = part.body?.data;
-          const decodedBodyPart = bodyPart
-            ? Buffer.from(bodyPart as string, 'base64').toString()
-            : '';
-          console.log(`parts body ${index}`, decodedBodyPart);
-          if (bodyPart) {
-            console.log(`parts body ${index}`, decodedBodyPart);
-          }
-        }
-      });
-    }
+    // console.log('message', message);
+    // if (isLastMessage) {
+    //   // get the body of the message
+    //   console.log('');
+    //   console.log('');
+    //   console.log('');
+    //   console.log('');
+    //   console.log('--------------message---------------');
+    //   console.log('message.id', message.id);
+    //   console.log('snippet', message.snippet);
+    //   const body = message.payload?.body?.data;
+    //   const decodedBody = body
+    //     ? Buffer.from(body as string, 'base64').toString()
+    //     : '';
+    //   console.log('body', decodedBody);
+    //   message.payload?.parts?.forEach((part, index) => {
+    //     if (part.mimeType === 'text/plain') {
+    //       const bodyPart = part.body?.data;
+    //       const decodedBodyPart = bodyPart
+    //         ? Buffer.from(bodyPart as string, 'base64').toString()
+    //         : '';
+    //       console.log(`parts body ${index}`, decodedBodyPart);
+    //       if (bodyPart) {
+    //         console.log(`parts body ${index}`, decodedBodyPart);
+    //       }
+    //     }
+    //   });
+    // }
 
     if (!headers) return;
 
@@ -76,6 +73,7 @@ export const getEmailsFromThread = async (
             );
 
             const messages = message.id ? [message.id] : undefined;
+            console.log('email', email);
             contacts.push({
               id: generateId(),
               email,

@@ -41,15 +41,17 @@ export const Contacts = () => {
                 Create Action
               </Button>
             )}
-            {action?.status === 'unauthorized' && (
-              <Button
-                size="sm"
-                colorScheme="blue"
-                onClick={() => createFetchEmailsAction()}
-              >
-                Reauthorize Action
-              </Button>
-            )}
+            {action &&
+              (action?.status === 'unauthorized' ||
+                action?.status === 'error') && (
+                <Button
+                  size="sm"
+                  colorScheme="blue"
+                  onClick={() => createFetchEmailsAction()}
+                >
+                  Reauthorize Action
+                </Button>
+              )}
             {action && action.status === 'running' && (
               <Button size="sm" onClick={() => triggerFetchAction()}>
                 Trigger Action
