@@ -7,28 +7,54 @@ import {
   Tbody,
   Th,
   Thead,
+  Text,
   Tr,
 } from '@chakra-ui/react';
 import { ContactRow } from './ContactRow';
 import { useContacts } from '../hooks/useContacts';
 import { Flex } from '@chakra-ui/react';
-import { useFetchEmail, useTriggerFetchAction } from '../api/fetchEmails';
+import {
+  useCreateFetchEmailsAction,
+  useTriggerFetchAction,
+} from '../api/fetchEmails';
+import { useUserAction } from '../hooks/useUserAction';
 export const Contacts = () => {
   const { contacts } = useContacts();
-  const { mutate } = useFetchEmail();
+  const { action } = useUserAction();
+  const { mutate: createFetchEmailsAction } = useCreateFetchEmailsAction();
   const { mutate: triggerFetchAction } = useTriggerFetchAction();
   return (
     <Card w="100%">
       <CardHeader>
         <Flex justifyContent="space-between" alignItems="center">
           Contacts
-          <Flex gap={2}>
-            <Button size="sm" colorScheme="blue" onClick={() => mutate()}>
-              Fetch Contacts
-            </Button>
-            <Button size="sm" onClick={() => triggerFetchAction()}>
-              Trigger Action
-            </Button>
+          <Flex gap={2} alignItems="center">
+            <Text fontSize="sm">Contacts: {contacts?.length}</Text>
+            <Text fontSize="sm">Actions: {action?.status}</Text>
+
+            {!action && (
+              <Button
+                size="sm"
+                colorScheme="blue"
+                onClick={() => createFetchEmailsAction()}
+              >
+                Create Action
+              </Button>
+            )}
+            {action?.status === 'unauthorized' && (
+              <Button
+                size="sm"
+                colorScheme="blue"
+                onClick={() => createFetchEmailsAction()}
+              >
+                Reauthorize Action
+              </Button>
+            )}
+            {action && action.status === 'running' && (
+              <Button size="sm" onClick={() => triggerFetchAction()}>
+                Trigger Action
+              </Button>
+            )}
           </Flex>
         </Flex>
       </CardHeader>

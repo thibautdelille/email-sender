@@ -1,12 +1,14 @@
 import * as admin from 'firebase-admin';
 import { sendEmail } from './sendEmail';
 import { fetchContactEmail } from './fetchContactEmail';
-import { fetchEmail } from './fetchEmail';
-import { triggerFetchEmailAction } from './scheduledFetchEmail';
+import { createFetchEmailsAction } from './createFetchEmailsAction';
+import { triggerFetchEmailAction } from './triggerFetchEmailAction';
+import { scheduledTriggerFetch } from './scheduledTriggerFetch';
 
 admin.initializeApp();
 
 exports.sendMail = sendEmail;
-exports.fetchEmail = fetchEmail;
+exports.createFetchEmailsAction = createFetchEmailsAction;
 exports.fetchContactEmail = fetchContactEmail;
 exports.triggerFetchEmailAction = triggerFetchEmailAction;
+exports.scheduledTriggerFetch = scheduledTriggerFetch;

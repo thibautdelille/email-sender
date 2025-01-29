@@ -20,16 +20,17 @@ export const triggerFetchEmailAction = https.onRequest((req, res) => {
           if (!response) {
             continue;
           }
-
-          const { contacts, newContacts, duration } = response;
-
-          res.status(200).send({
-            contacts,
-            newContacts,
-            duration,
-          });
         } catch (error) {
-          res.status(500).send(error);
+          if (error instanceof Error) {
+            console.error('Error in scheduled fetch:', error.message);
+            if (error.message === 'unauthorized') {
+              res.status(401).send(error);
+              return;
+            } else {
+              res.status(500).send(error);
+              return;
+            }
+          }
         }
       }
 

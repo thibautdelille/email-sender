@@ -4,6 +4,7 @@ export type RecipientType = {
   email: string;
   sent?: boolean;
   status?: 'success' | 'error' | 'idle';
+  messages?: string[];
 };
 
 export type Action = {

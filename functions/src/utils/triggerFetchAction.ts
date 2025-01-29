@@ -11,7 +11,6 @@ export const triggerFetchAction = async (
   const db = admin.firestore();
   const userRef = db.collection('userData').doc(action.userId);
   const userDoc = await userRef.get();
-
   if (!userDoc.exists) {
     console.log(`User ${action.userId} not found`);
     await actionDoc.ref.delete();
@@ -31,6 +30,10 @@ export const triggerFetchAction = async (
   if (fetchAction.status === 'success') {
     await actionDoc.ref.delete();
     return;
+  }
+  // If action is unauthorized, remove it from Actions collection
+  if (fetchAction.status === 'unauthorized') {
+    throw new Error('Unauthorized');
   }
 
   // If action is running, process it
@@ -76,6 +79,7 @@ export const triggerFetchAction = async (
       });
 
       const threads = threadsResponse.data.threads || [];
+      // console.log('threads', threads);
 
       // If no threads found, mark action as success
       if (threads.length === 0) {
@@ -99,6 +103,18 @@ export const triggerFetchAction = async (
       const userData = userDoc.data();
       const existingRecipients = userData?.recipients || [];
 
+      // If the contact already exists merge
+      // the messages with the existing contact
+
+      contacts.forEach((contact) => {
+        const existingContact = existingRecipients.find(
+          (r: RecipientType) => r.email === contact.email
+        );
+        if (existingContact && contact.messages) {
+          contact.messages = [...existingContact.messages, ...contact.messages];
+        }
+      });
+
       // Filter out contacts that already exist
       const newContacts = contacts.filter(
         (contact) =>
@@ -119,13 +135,10 @@ export const triggerFetchAction = async (
         }
       }
 
-      console.log(`newContacts.length: ${newContacts.length}`);
       if (uniqueContacts.length > 0) {
-        console.time('update recipients');
         await userRef.update({
           recipients: [...existingRecipients, ...uniqueContacts],
         });
-        console.timeEnd('update recipients');
       }
 
       const timeEnd = Date.now();

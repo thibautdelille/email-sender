@@ -33,6 +33,7 @@ export const useGetUserData = (userId?: string) => {
     subject: query.data.get('subject') || '',
     message: query.data.get('message') || '',
     recipients: query.data.get('recipients') || '',
+    fetchAction: query.data.get('fetchAction') || '',
   };
 
   return {

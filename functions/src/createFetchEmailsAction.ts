@@ -5,7 +5,7 @@ import * as admin from 'firebase-admin';
 
 const corsHandler = cors({ origin: true });
 
-export const fetchEmail = https.onRequest((req, res) => {
+export const createFetchEmailsAction = https.onRequest((req, res) => {
   corsHandler(req, res, async () => {
     const { accessToken, googleAccessToken, userId } = req.body;
 
@@ -20,7 +20,6 @@ export const fetchEmail = https.onRequest((req, res) => {
 
     // Get Firestore instance
     const db = admin.firestore();
-    console.log('db', db);
     try {
       // Check if user exists and if there's a running action
       const userRef = db.collection('userData').doc(userId);
@@ -30,7 +29,6 @@ export const fetchEmail = https.onRequest((req, res) => {
         res.status(404).send('User not found');
         return;
       }
-      console.log('userDoc', userDoc);
 
       const userData = userDoc.data();
       if (userData?.fetchAction?.status === 'running') {
@@ -38,33 +36,31 @@ export const fetchEmail = https.onRequest((req, res) => {
         return;
       }
 
-      console.log('userData', userData);
-
       // We don't need to verify the token as it's a Google OAuth token
       const oAuth2Client = new google.auth.OAuth2();
       oAuth2Client.setCredentials({ access_token: googleAccessToken });
 
       // Get token info to see the scopes
       try {
+        console.log('googleAccessToken', googleAccessToken);
         const tokenInfo = await oAuth2Client.getTokenInfo(googleAccessToken);
         if (!tokenInfo.scopes?.includes('https://mail.google.com/')) {
           throw new Error('Missing required Gmail scope');
         }
       } catch (error) {
+        console.log('401', 'Invalid or insufficient token permissions');
         res.status(401).send('Invalid or insufficient token permissions');
         return;
       }
-
-      console.log('googleAccessToken', googleAccessToken);
 
       // Start a batch write to update both collections atomically
       const batch = db.batch();
 
       if (userData?.fetchAction?.status === 'unauthorized') {
         batch.update(userRef, {
+          'fetchAction.googleAccessToken': googleAccessToken,
           'fetchAction.status': 'running',
         });
-        return;
       } else {
         // Update user document with new fetch action
         batch.update(userRef, {
@@ -82,7 +78,6 @@ export const fetchEmail = https.onRequest((req, res) => {
         actionType: 'fetchAction',
         userId,
       });
-
       // Commit the batch
       await batch.commit();
 
